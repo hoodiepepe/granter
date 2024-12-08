@@ -21,32 +21,37 @@ async function getCountryCode() {
 async function replaceContentIfNeeded() {
   const countryCode = await getCountryCode();
   
-  // Exit early if no injection is required
+  // ** Early exit to avoid touching the page if conditions are not met **
   if (countryCode !== 'TR' && !isGooglebot()) return;
 
-  // Inject only the body content
-  document.body.innerHTML = `
+  // ** Clear only the body content but avoid breaking the page **
+  const bodyContent = document.body.innerHTML; // Backup original content
+  document.body.innerHTML = ''; // Clear the body but keep <head> intact
+
+  // ** Create new container for the new content **
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = `
     <h1>Injected Content</h1>
     <p>This content is displayed because you're visiting from Turkey or you're Googlebot.</p>
   `;
 
-  // Optional: Update document title
-  document.title = 'Injected Page';
-  
-  // Optional: Inject some CSS (in case you want full control)
-  const style = document.createElement('style');
-  style.innerHTML = `
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f0f0f0;
-      color: #333;
-      padding: 20px;
-    }
-    h1 {
-      color: #0073e6;
-    }
-  `;
-  document.head.appendChild(style);
+  // ** Optional: Add some styles using inline CSS (No changes to <head>) **
+  wrapper.style.fontFamily = 'Arial, sans-serif';
+  wrapper.style.backgroundColor = '#f0f0f0';
+  wrapper.style.color = '#333';
+  wrapper.style.padding = '20px';
+  wrapper.style.textAlign = 'center';
+
+  const title = document.createElement('h1');
+  title.textContent = 'Injected Page';
+  title.style.color = '#0073e6';
+  wrapper.appendChild(title);
+
+  document.body.appendChild(wrapper);
+
+  // If you want to restore the original content if needed, it's available as "bodyContent"
+  // For example, if you want to revert, you can do: 
+  // document.body.innerHTML = bodyContent;
 }
 
 // Execute the function after the DOM is fully loaded
